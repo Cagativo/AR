@@ -6,33 +6,20 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-ar@1.8.2/dist/aframe-ar.min.js"></script>
     <style>
-      html, body {margin: 0; overflow: hidden; height: 100%;}
-      .arjs-loader {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: black; color: white;
-        display: flex; align-items: center; justify-content: center;
-        font-family: sans-serif; z-index: 999;
+      html, body {
+        margin: 0;
+        overflow: hidden;
+        height: 100%;
+        background: black;
       }
     </style>
   </head>
   <body>
-    <div class="arjs-loader">Loading AR…</div>
-
+    <!-- AR scene -->
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
       <a-entity position="0 1.2 -2">
 
-        <!-- SCAN ME text -->
-        <a-text
-          id="scanText"
-          value="👻 Scan me"
-          align="center"
-          position="0 1 0"
-          color="#00FFFF"
-          scale="2 2 2"
-          animation__fadeout="property: opacity; to: 0; dur: 1000; startEvents: fadeout">
-        </a-text>
-
-        <!-- Ghost image -->
+        <!-- floating ghost image -->
         <a-image
           id="ghostImage"
           src="https://cagativo.github.io/AR/ghost.png"
@@ -40,18 +27,32 @@
           height="1.5"
           position="0 0 0"
           opacity="1"
-          animation__fadeout="property: opacity; to: 0; dur: 1000; startEvents: fadeout">
+          animation__fadeout="property: opacity; to: 0; dur: 800; startEvents: fadeout"
+          animation__float="property: position; dir: alternate; dur: 2000; easing: easeInOutSine; loop: true; to: 0 0.1 0">
         </a-image>
 
-        <!-- Hidden video (will fade in) -->
+        <!-- "Scan me" text -->
+        <a-text
+          id="scanText"
+          value="👻 Scan me"
+          align="center"
+          position="0 1 0"
+          color="#00FFFF"
+          scale="2 2 2"
+          opacity="1"
+          animation__fadeout="property: opacity; to: 0; dur: 800; startEvents: fadeout">
+        </a-text>
+
+        <!-- hidden video -->
         <a-video
           id="ghostVideo"
           src="#video"
           width="1.5"
           height="1.5"
           position="0 0 0"
+          rotation="0 0 0"
           opacity="0"
-          animation__fadein="property: opacity; to: 1; dur: 1000; startEvents: fadein">
+          animation__fadein="property: opacity; to: 1; dur: 800; startEvents: fadein">
         </a-video>
 
       </a-entity>
@@ -59,7 +60,7 @@
       <a-entity camera></a-entity>
     </a-scene>
 
-    <!-- hidden video source -->
+    <!-- video source -->
     <video
       id="video"
       src="https://cagativo.github.io/AR/Casper.mp4"
@@ -71,18 +72,20 @@
       style="display:none">
     </video>
 
-    <!-- tap to play + trigger transition -->
     <script>
+      const vid = document.getElementById('video');
+      const ghostImg = document.getElementById('ghostImage');
+      const scanTxt = document.getElementById('scanText');
+      const ghostVid = document.getElementById('ghostVideo');
+
+      // Try to autoplay immediately (works on Android Chrome)
+      window.addEventListener('load', () => {
+        vid.play().catch(() => {});
+      });
+
+      // On tap: play video & fade out image/text
       window.addEventListener('click', () => {
-        const vid = document.getElementById('video');
-        const ghostImg = document.getElementById('ghostImage');
-        const scanTxt = document.getElementById('scanText');
-        const ghostVid = document.getElementById('ghostVideo');
-
-        // play video (if blocked by autoplay policy)
-        if (vid.paused) vid.play();
-
-        // trigger fade animations
+        vid.play().catch(() => {});
         ghostImg.emit('fadeout');
         scanTxt.emit('fadeout');
         ghostVid.emit('fadein');
