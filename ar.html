@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Floating AR Video</title>
+    <title>Ghost AR</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-ar@1.8.2/dist/aframe-ar.min.js"></script>
     <style>
@@ -18,22 +18,48 @@
   <body>
     <div class="arjs-loader">Loading AR…</div>
 
-    <!-- AR.js scene -->
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-      <!-- floating video plane -->
       <a-entity position="0 1.2 -2">
-        <a-video
-          src="#video"
-          width="2.4"
-          height="1.4"
+
+        <!-- SCAN ME text -->
+        <a-text
+          id="scanText"
+          value="👻 Scan me"
+          align="center"
+          position="0 1 0"
+          color="#00FFFF"
+          scale="2 2 2"
+          animation__fadeout="property: opacity; to: 0; dur: 1000; startEvents: fadeout">
+        </a-text>
+
+        <!-- Ghost image -->
+        <a-image
+          id="ghostImage"
+          src="https://cagativo.github.io/AR/ghost.png"
+          width="1.5"
+          height="1.5"
           position="0 0 0"
-          rotation="0 0 0">
+          opacity="1"
+          animation__fadeout="property: opacity; to: 0; dur: 1000; startEvents: fadeout">
+        </a-image>
+
+        <!-- Hidden video (will fade in) -->
+        <a-video
+          id="ghostVideo"
+          src="#video"
+          width="1.5"
+          height="1.5"
+          position="0 0 0"
+          opacity="0"
+          animation__fadein="property: opacity; to: 1; dur: 1000; startEvents: fadein">
         </a-video>
+
       </a-entity>
+
       <a-entity camera></a-entity>
     </a-scene>
 
-    <!-- hidden HTML5 video that feeds the AR plane -->
+    <!-- hidden video source -->
     <video
       id="video"
       src="https://cagativo.github.io/AR/Casper.mp4"
@@ -45,11 +71,21 @@
       style="display:none">
     </video>
 
-    <!-- tap-to-play helper -->
+    <!-- tap to play + trigger transition -->
     <script>
       window.addEventListener('click', () => {
         const vid = document.getElementById('video');
+        const ghostImg = document.getElementById('ghostImage');
+        const scanTxt = document.getElementById('scanText');
+        const ghostVid = document.getElementById('ghostVideo');
+
+        // play video (if blocked by autoplay policy)
         if (vid.paused) vid.play();
+
+        // trigger fade animations
+        ghostImg.emit('fadeout');
+        scanTxt.emit('fadeout');
+        ghostVid.emit('fadein');
       });
     </script>
   </body>
